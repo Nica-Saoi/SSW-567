@@ -63,6 +63,5 @@ class TestGitHubApi(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-
 if __name__ == "__main__":
     unittest.main()
