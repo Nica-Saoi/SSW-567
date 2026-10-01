@@ -1,34 +1,63 @@
 import unittest
-
+from unittest.mock import patch, Mock
 from github_api import get_repos, get_commits, get_repo_commit_counts
 
 
 class TestGitHubApi(unittest.TestCase):
 
-    def test_get_repos(self):
-        repos = get_repos("richkempinski")
-        repo_names = [repo["name"] for repo in repos]
-        self.assertIn("hellogitworld", repo_names)
+    @patch("github_api.requests.get")
+    def test_get_repos(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"name": "Repo1"},
+            {"name": "Repo2"}
+        ]
+        mock_get.return_value = mock_response
+
+        result = get_repos("testuser")
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["name"], "Repo1")
+        self.assertEqual(result[1]["name"], "Repo2")    
+
+    @patch("github_api.requests.get")
+    def test_get_commits(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"id": 1},
+            {"id": 2}
+        ]
+        mock_get.return_value = mock_response
+
+        result = get_commits("testuser", "Repo1")
+
+        self.assertEqual(len(result), 2)
 
 
-    def test_get_commits(self):
-        commits = get_commits(
-            "richkempinski",
-            "hellogitworld"
-        )
+    @patch("github_api.get_commits")
+    @patch("github_api.get_repos")
+    def test_get_repo_commit_counts(self, mock_get_repos, mock_get_commits):
+        
+        mock_get_repos.return_value = [
+            {"name": "Repo1"},
+            {"name": "Repo2"}
+        ]
 
-        self.assertGreater(len(commits), 0)
+        mock_get_commits.side_effect = [
+            [{"id": 1}, {"id": 2}],
+            [{"id": 3}]
+        ]
 
+        result = get_repo_commit_counts("testuser")
 
-    def test_get_repo_commit_counts(self):
-        results = get_repo_commit_counts("richkempinski")
+        expected = [
+            "Repo: Repo1 Number of commits: 2",
+            "Repo: Repo2 Number of commits: 1"
+        ]
 
-        found_hello_repo = False
-        for result in results:
-            if result.startswith("Repo: hellogitworld Number of commits"
-            ):
-                found_hello_repo = True
+        self.assertEqual(result, expected)
 
-        self.assertTrue(found_hello_repo)
 if __name__ == "__main__":
     unittest.main()
