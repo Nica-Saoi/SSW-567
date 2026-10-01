@@ -1,0 +1,25 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.11
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: |
+            pip install -r GitHubApi567-hw03a/requirements.txt
+
+      - run:
+          name: Run HW03a tests
+          command: |
+            cd GitHubApi567-hw03a
+            python -m unittest test_github_api.py
+
+workflows:
+  test-workflow:
+    jobs:
+      - test
