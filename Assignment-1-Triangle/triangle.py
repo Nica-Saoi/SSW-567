@@ -1,5 +1,8 @@
+"""Functions for classifying triangles."""
+
 def classify_triangle(a, b, c):
-  
+    """Return type of triangle based on side lengths."""
+
     # see if the sides can make a triangle
     if a <= 0 or b <= 0 or c <= 0:
         return "Not a Triangle"
@@ -10,10 +13,8 @@ def classify_triangle(a, b, c):
     # figure out triangle type
     if a == b and b == c:
         triangle_type = "Equilateral"
-
     elif a == b or a == c or b == c:
         triangle_type = "Isosceles"
-
     else:
         triangle_type = "Scalene"
 
@@ -24,4 +25,3 @@ def classify_triangle(a, b, c):
         return triangle_type + " and Right"
 
     return triangle_type
-
